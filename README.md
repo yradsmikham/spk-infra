@@ -158,7 +158,7 @@ If the template change did not require an update to the `definition.json`, Hugo 
 
 Hugo has done some research on CI/CD tools, and stumbled upon [Atlantis](https://github.com/runatlantis/atlantis). Hugo attempts to incorporate Atlantis as part of the CI/CD for infrastructure.
 
-Hugo will use Atlantis to create changes to the Cluster Generated repo, and execute
+Instead of using an Azure DevOps pipeline to deploy changes to the cluster, Hugo creates a pull request against the Cluster Generated repo (via the first Azure DevOps pipeline) and then relies on Atlantis to essentially run `terraform plan` and `terraform apply` remotely and comment back on the pull request with the output by executing the following as PR comments:
 
 ```
 $ atlantis plan
@@ -166,3 +166,6 @@ $ atlantis apply
 ```
 
 ![](./images/spk-infra-cicd.png)
+
+## Footnotes
+- https://github.com/runatlantis/atlantis/pull/719
