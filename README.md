@@ -126,15 +126,14 @@ and likewise, afterwards in the discovery-service/west/generated directories.
 ## Version 1
 From Olina, Hugo has learned of the headaches from manually updating and versioning his cluster at scale. So, he attempts to come up with an approach to automate some of these components.
 
-Hugo creates git repositories to hold all of his infrastructure files: (1) Cluster HLD repo (contains `definition.json` files), and (2) Cluster Generated repo (contains generated terraform files). He wants to rely on git pull requests, and triggered Azure DevOps builds to automate changes made to his cluster. To do this he writes a script for one of his Azure DevOps pipeline linked to the cluster definition repo that will do the following:
+Hugo creates git repositories to hold all of his infrastructure files: (1) Cluster HLD repo (contains `definition.json` files), and (2) Cluster Generated repo (contains generated terraform files). He wants to rely on git pull requests, and triggered Azure DevOps builds to automate changes made to his cluster. To do this, he writes a script for one of his Azure DevOps pipeline linked to the cluster definition repo that will do the following:
 
 - Download and install the latest version of `spk`
 - Runs `spk infra generate` on the modified `definition.json`
     - Regenerates the terraform templates with the new changes
-- Creates a pull request against the "generated" repo
-    - Commits new generated terraform files to the repo
+- Creates a pull request against the Cluster Generated repo
 
-He then creates another Azure DevOps pipeline linked to the "generated" repo that will:
+He then creates another Azure DevOps pipeline linked to the Cluster Generated repo that will:
 
 - Download and install the latest version of `terraform`
 - Runs `terraform init`, `terraform plan`, and `terraform apply` to update his Cloud infrastructure.
@@ -142,11 +141,11 @@ He then creates another Azure DevOps pipeline linked to the "generated" repo tha
 ## Updating a Configuration
 
 Hugo would like to change the `agent_vm_count` for his `discovery-service-east` cluster, and although he could simply update the `definition.json` file, run `spk infra generate` on the directory, and then finally run `terraform apply` to update the cluster, he would rather have these changes be automated, versioned, and logged somewhere. With the approach described above, Hugo can update the `definition.json` file, and push a new commit to the Cluster HLD Repo.
-From there, this will trigger an Azure DevOps pipeline that will execute a script, The script will download and install `spk`, run `spk infra generate` against the `definition.json` to generate the appropriate terraform files, and finally create a git pull request against the Cluster Generated repo. Hugo will need review the pull request on the Cluster Generated repo to ensure that the changes are correct before merging.
+From there, this will trigger an Azure DevOps pipeline that will execute a script. The script will download and install `spk`, run `spk infra generate` against the `definition.json` to generate the appropriate terraform files, and finally create a git pull request against the Cluster Generated repo. Hugo will need review the pull request on the Cluster Generated repo to ensure that the changes are correct before merging.
 
 When the changes are merged, another Azure DevOps pipeline will be triggered to execute a simple script to perform `terraform` commands. Once the `terraform` commands succeed, the cluster should be updated!
 
-**NOTE**: This approach only supports terraform infrastructure that uses a remote backend.
+**NOTE**: This approach only supports Terraform infrastructure that uses a remote backend.
 
 ## Updating a Template
 
@@ -156,9 +155,9 @@ If the template change did not require an update to the `definition.json`, Hugo 
 
 ## Version 2
 
-Hugo has done some research on CI/CD tools, and stumbled upon [Atlantis](https://github.com/runatlantis/atlantis). Hugo attempts to incorporate Atlantis as part of the CI/CD for infrastructure.
+Hugo has done some research on CI/CD tools, and stumbled upon [Atlantis](https://github.com/runatlantis/atlantis). He attempts to incorporate Atlantis as part of the CI/CD for infrastructure.
 
-Instead of using an Azure DevOps pipeline to deploy changes to the cluster, Hugo creates a pull request against the Cluster Generated repo (via the first Azure DevOps pipeline) and then relies on Atlantis to essentially run `terraform plan` and `terraform apply` remotely and comment back on the pull request with the output by executing the following as PR comments:
+Instead of using an Azure DevOps pipeline to deploy changes to the cluster, Hugo creates a pull request against the Cluster Generated repo (via the first Azure DevOps pipeline) and then relies on Atlantis to run `terraform plan` and `terraform apply` remotely and comment back on the pull request with the output by executing the following as PR comments:
 
 ```
 $ atlantis plan
