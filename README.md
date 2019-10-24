@@ -4,6 +4,8 @@ An extension to [Bedrock E2E](https://github.com/CatalystCode/bedrock-end-to-end
 
 Olina's coworker, Hugo, a developer, overheard the exciting project of Bedrock, and is interested in experiementing with it. Olina, who is now an expert at Bedrock, decided to write up a "guide" to help Hugo get started with building, maintaining, and deploying his infrastructure.
 
+# Infrastructure Configuration and Deployment (Day 0-1)
+
 ## Building Cluster Definition
 
 Like Olina, Hugo suspects that his project will grow over time, so he wants to be able to scalably add and manage N clusters without having to manage N sets of Terraform code and configuration. Huga would like each deployement to resemble the same Terraform environment template, but use different configuration values. Luckily, `spk` supports a hierarchical structure, where each layer will inherit configuratiom from its parent layer (if its not specified at the child level). To begin, Hugo runs:
@@ -121,12 +123,12 @@ $ terraform apply
 
 and likewise, afterwards in the discovery-service/west/generated directories.
 
-# CI/CD
+# CI/CD (Day 2)
 
 ## Version 1
 From Olina, Hugo has learned of the headaches from manually updating and versioning his cluster at scale. So, he attempts to come up with an approach to automate some of these components.
 
-Hugo creates git repositories to hold all of his infrastructure files: (1) Cluster HLD repo (contains `definition.json` files), and (2) Cluster Generated repo (contains generated terraform files). He wants to rely on git pull requests, and triggered Azure DevOps builds to automate changes made to his cluster. To do this, he writes a script for one of his Azure DevOps pipeline linked to the cluster definition repo that will do the following:
+Hugo creates git repositories to hold all of his infrastructure files: (1) Cluster HLD repo (contains `definition.json` files), and (2) Cluster Generated repo (contains generated terraform files). He wants to rely on git pull requests, and triggered Azure DevOps pipelines to automate changes made to his cluster. To do this, he writes a script for one of his Azure DevOps pipeline linked to the cluster definition repo that will do the following:
 
 - Download and install the latest version of `spk`
 - Runs `spk infra generate` on the modified `definition.json`
@@ -166,5 +168,17 @@ $ atlantis apply
 
 ![](./images/spk-infra-cicd.png)
 
+# Summary
+
+- User runs `spk infra scaffold` to generate `definition.json` files and build hiearchy for multi-cluster.
+- User runs `spk infra generate` to generate Terraform scripts based on the `definition.json` files.
+- User creates two git repositories: (1) Infra HLD repo and (2) Infra Generated repo. The `definition.json` resides in the Infra HLD repo, meanwhile, the generated Terraform scripts reside in the Infra Generated repo.
+- User configures Azure DevOps pipelines that are triggered off of git commits and PRs.
+    - The first Azure DevOps pipeline will (re)generate Terraform files when `definition.json` files are updated. (triggered off Infra HLD repo)
+    - The second Azure DevOps pipeline will execute Terraform commands to deploy changes to cluster. (triggered off Infra Generated repo)
+- Atlantis does not have support for Azure DevOps repos (yet). Open PR is yet to be resolved (See footnotes).
+    - Implementing Atlantis could potentially condense repos, and reduce the number of Azure DevOps pipelines in CI/CD workflow.
+
 ## Footnotes
 - https://github.com/runatlantis/atlantis/pull/719
+- https://medium.com/runatlantis/introducing-atlantis-6570d6de7281
