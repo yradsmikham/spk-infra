@@ -2,7 +2,7 @@
 
 An extension to [Bedrock E2E](https://github.com/CatalystCode/bedrock-end-to-end-dx).
 
-Olina's coworker, Hugo, a developer, overheard the exciting project of Bedrock, and is interested in experiementing with it. Olina, who is now an expert at Bedrock,decided to write up this "guide" to help Hugo get started with building, maintaining, and deploying his infrastructure.
+Olina's coworker, Hugo, a developer, overheard the exciting project of Bedrock, and is interested in experiementing with it. Olina, who is now an expert at Bedrock, decided to write up a "guide" to help Hugo get started with building, maintaining, and deploying his infrastructure.
 
 ## Building Cluster Definition
 
@@ -150,12 +150,19 @@ When the changes are merged, another Azure DevOps pipeline will be triggered to 
 
 ## Updating a Template
 
-Hugo wants to add a null resource to his `fabrikam-single-keyvault` template. So, he makes changes to the terraform templates to his personal Bedrock **source** repo. However, now he wants the `discovery-service-west` cluster to reflect this change. Similar to updating a configuration, Hugo makes a change to his `definition.json` by running `spk infra scaffold` to regenerate a `definition.json` with the appropriate (new) variables (or he can simply modify the existing `definition.json`). Then, he commits this change to the Cluster HLD repo, which will trigger the CICD pipelines to accomplish a successful cluster deployment.
+Hugo wants to add a null resource to his `fabrikam-single-keyvault` template. So, he makes changes to the terraform templates to his personal Bedrock **source** repo. However, now he wants the `discovery-service-west` cluster to reflect this change. Similar to updating a configuration, Hugo makes a change to his `definition.json` by running `spk infra scaffold` to regenerate a `definition.json` with the appropriate (new) variables (or he can simply modify the existing `definition.json`). Then, he commits this change to the Cluster HLD repo, which will trigger the CI/CD pipelines to accomplish a successful cluster deployment.
 
 If the template change did not require an update to the `definition.json`, Hugo can also manually trigger the Azure DevOps pipeline to regenerate the terrform files in the Cluster Generated Repo.
 
 ## Version 2
 
-Hugo has done some research on CICD tools, and stumbled upon [Atlantis](https://github.com/runatlantis/atlantis). Hugo attempts to incorporate Atlantis as part of the CICD for infrastructure.
+Hugo has done some research on CI/CD tools, and stumbled upon [Atlantis](https://github.com/runatlantis/atlantis). Hugo attempts to incorporate Atlantis as part of the CI/CD for infrastructure.
+
+Hugo will use Atlantis to create changes to the Cluster Generated repo, and execute
+
+```
+$ atlantis plan
+$ atlantis apply
+```
 
 ![](./images/spk-infra-cicd.png)
