@@ -5,7 +5,9 @@ A breakdown of how `spk infra` will handle versioning, cloning, and template gen
 
 ## Sourcing Templates (Git Cloning)
 
-`spk` will rely on __git cloning__ your source repository (e.g. microsoft/bedrock) as a means to appropriately source Terraform templates. This will happen as part of the `spk infra scaffold` execution using arguments `--source`, `--version`, and `--template`. The `--source` argument specifies the git url of your source repo, the `--template` argument specifies the path to the template within the git repo, and the `--version` argument specifies the git repo _tag_. `spk` requires that template or repo versions are made in the form or repo tags.
+`spk` will rely on __git cloning__ your source repository (e.g. microsoft/bedrock) as a means to appropriately source Terraform templates. This will happen as part of the `spk infra scaffold` execution using arguments `--source`, `--version`, and `--template`. The `--source` argument specifies the git url of your source repo, the `--template` argument specifies the path to the template within the git repo, and the `--version` argument specifies the git repo _tag_. `spk` requires that template or repo versions are made in the form of repo tags.
+
+This allows there to be flexibility in using _any_ source repository, including ones outside of Bedrock. As long as the `--template` value provides a valid path within the source repository, and the versioned source repository can be successfully cloned, `spk` should be able to scaffold and generate templates from any source.
 
 The following sequence of events will take place with regards to sourcing templates when running `spk infra` commands:
 
