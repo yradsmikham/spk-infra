@@ -68,9 +68,9 @@ There potentially could be issues that emerge when propagating definitions when 
 
 ### Determining Conditionals Based on Committed Modified Files
 
-If `definition.json` and generated Terraform files were to reside in the same repo, there needs to be a script that will determine the appropriate action when specific files are modified. The following are "proposed" steps on how to handle this using a script:
+If `definition.json` files and generated Terraform files were to reside in the same repo (e.g. "Infra HLD Repo"), there needs to be a script (which executes within a pipeline) that will determine the appropriate action(s) for when specific files are modified. The following are "proposed" steps on how to handle this using a script:
 
-Based on the commit ID that triggered the pipeline, get the changeset/modified files:
+Based on the commit ID that triggered the pipeline script, get the changeset/modified files:
 1. If changes are made to definition.json files:
     - If a (parent) definition.json file:
         - Run `spk infra generated` on all "leaf" directories.
