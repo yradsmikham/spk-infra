@@ -1,7 +1,7 @@
 
 # spk infra (under the hood)
 
-A breakdown of how `spk infra` will handle versioning, cloning, and template generation.
+A breakdown of how `spk infra` will handle versioning, cloning, template generation, and more.
 
 ## Sourcing Templates (Git Cloning)
 
@@ -44,3 +44,43 @@ discovery-service
 
 1. The command recursively (1) reads in the `definition.json` at the current directory level, (2) applies the `definition.json` there to the currently running dictionary for the directory scope, and (3) descends the path step by step.
 2. At the final leaf directory, it creates a generated directory and fills the Terraform definition using the source and template at the specified version and with the accumulated variables.
+
+## Considerations
+
+### Private Repos
+
+`spk` will extend the capability to clone private repositories using personal access tokens (PAT).
+
+- Should this be included as part of the `definition.json` or stored as environment variables (via pipelines)?
+
+### Redeployments and Migrations
+
+Often, templates may change drastically that it may make more sense to deploy a new cluster and perform a migration.
+
+- Where do you draw the line on performing re-deployments and migrations?
+- Should this be handled through `spk`, Azure DevOps pipeline, or etc.?
+
+### Reconcilation Between Parent and Leaf Templates
+
+There potentially could be issues that emerge when propagating definitions when dealing with template version mismatch between parent and leaf templates.
+
+- Could it be possible that propagation fails when the templates between versions are _too_ different? (e.g. new variables/modules/resources are removed but still carried over from parent to leaf)
+
+### Determining Conditionals Based on Committed Modified Files
+
+If `definition.json` and generated Terraform files were to reside in the same repo, there needs to be a script that will determine the appropriate action when specific files are modified. The following are "proposed" steps on how to handle this using a script:
+
+Based on the commit ID that triggered the pipeline, get the changeset/modified files:
+    1. If changes are made to definition.json files:
+        a) If a (parent) definition.json file:
+            i) Run `spk infra generated` on all "leaf" directories.
+            ii) Create a pull request against the HLD with the updated generated files.
+        b) If a (child/leaf) definition.json:
+            i) run `spk infra generated` on just the leaf directory.
+            ii) Create a PR to the HLD with the updated generated files.
+        c) If BOTH:
+            i) Run `spk infra generated` on all "leaf" directories.
+            ii) Create a PR to the HLD with the updated generated files.
+    2. If changes are made to "generated" files:
+        a) Determine which generated directories are affected.
+        b) Proceed to run `terraform init`, `terraform plan`, and `terraform apply` on the affected directories.
