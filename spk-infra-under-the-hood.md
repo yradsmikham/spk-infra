@@ -71,16 +71,16 @@ There potentially could be issues that emerge when propagating definitions when 
 If `definition.json` and generated Terraform files were to reside in the same repo, there needs to be a script that will determine the appropriate action when specific files are modified. The following are "proposed" steps on how to handle this using a script:
 
 Based on the commit ID that triggered the pipeline, get the changeset/modified files:
-    1. If changes are made to definition.json files:
-        a) If a (parent) definition.json file:
-            i) Run `spk infra generated` on all "leaf" directories.
-            ii) Create a pull request against the HLD with the updated generated files.
-        b) If a (child/leaf) definition.json:
-            i) run `spk infra generated` on just the leaf directory.
-            ii) Create a PR to the HLD with the updated generated files.
-        c) If BOTH:
-            i) Run `spk infra generated` on all "leaf" directories.
-            ii) Create a PR to the HLD with the updated generated files.
-    2. If changes are made to "generated" files:
-        a) Determine which generated directories are affected.
-        b) Proceed to run `terraform init`, `terraform plan`, and `terraform apply` on the affected directories.
+1. If changes are made to definition.json files:
+    - If a (parent) definition.json file:
+        - Run `spk infra generated` on all "leaf" directories.
+        - Create a pull request against the HLD with the updated generated files.
+    - If a (child/leaf) definition.json:
+        - run `spk infra generated` on just the leaf directory.
+        - Create a PR to the HLD with the updated generated files.
+    - If BOTH:
+        - Run `spk infra generated` on all "leaf" directories.
+        - Create a PR to the HLD with the updated generated files.
+2. If changes are made to "generated" files:
+    - Determine which generated directories are affected.
+    - Proceed to run `terraform init`, `terraform plan`, and `terraform apply` on the affected directories.
